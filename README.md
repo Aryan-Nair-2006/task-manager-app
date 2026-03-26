@@ -14,7 +14,7 @@ A simple and interactive task manager built using HTML, CSS, and JavaScript.
 
 ## How to Run
 1. Download or clone this repository
-2. Open index.html in any browser
+2. Open task.html in any browser
 
 ## Author
 Aryan
