@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+	<head>
+		<title>Task Manager</title>
+		<style>
+			body{
+				font-family:Arial,sans-serif;
+				background-color:black;
+				color:white;
+			}
+			.container{
+				width:400px;
+				margin:50px auto;
+				background-color:black;
+				color:white;
+				padding:20px;
+				border:solid yellow;
+				border-radius:10px;
+			}
+			h1{
+				text-align:center;
+			}
+			.inpsec{
+				display:flex;
+				gap:5px;
+			}
+			input{
+				flex:1;
+				padding:8px;
+			}
+			button{
+				padding:8px;
+				cursor:pointer;
+			}
+			ul{
+				list-style:none;
+				padding:0;
+			}
+			li{
+				margin-top:10px;
+				display:flex;
+				justify-content:space-between;
+				background-color:gray;
+				color:white;
+				padding:8px;
+				border-radius:5px;
+			}
+			.completed {
+				text-decoration:line-through;
+				color:darkgreen;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Task Manager</h1>
+			<div class="inpsec">
+				<input type="text" id="taskInput" placeholder="Enter a task">
+				<input type="date" id="dueDate">
+				<button onclick="addTask()">Add</button>
+			</div>
+			<div class="filters">
+				<button onclick="filterTasks('all')">All</button>
+				<button onclick="filterTasks('completed')">Completed</button>
+				<button onclick="filterTasks('pending')">Pending</button>
+			</div>
+			<ul id="taskList"></ul>
+		</div>
+		<script>
+			let tasks=[];
+			let currentFilter="all";
+			window.onload=function(){
+				loadTasks();
+				renderTasks();
+			};
+			function addTask(){
+				let input=document.getElementById("taskInput");
+				let dateInput=document.getElementById("dueDate");
+				let text=input.value.trim();
+				let dueDate=dateInput.value;
+				if (text=="") return;
+				let task={
+					text:text,
+					completed:false,
+					dueDate:dueDate
+				};
+				tasks.push(task);
+				input.value="";
+				dateInput.value="";
+				saveTasks();
+				renderTasks();
+			}
+			function renderTasks() {
+				let list=document.getElementById("taskList");
+				list.innerHTML="";
+				let filteredTasks=tasks.filter(task => {
+				if (currentFilter==="completed") return task.completed;
+				if (currentFilter==="pending") return !task.completed;
+					return true;
+				});
+				filteredTasks.forEach((task, index)=>{
+					let li=document.createElement("li");
+					let taskText=document.createElement("span");
+					taskText.textContent=task.text+(task.dueDate?"(Due:"+task.dueDate+")":"");
+					if(task.completed){
+						taskText.classList.add("completed");
+					}
+					let btnContainer = document.createElement("div");
+					let toggleBtn = document.createElement("button");
+					toggleBtn.textContent = "✔";
+					toggleBtn.onclick = () => toggleTask(index);
+					let deleteBtn = document.createElement("button");
+					deleteBtn.textContent = "❌";
+					deleteBtn.onclick = () => deleteTask(index);
+					btnContainer.appendChild(toggleBtn);
+					btnContainer.appendChild(deleteBtn);
+					li.appendChild(taskText);
+					li.appendChild(btnContainer);
+					list.appendChild(li);
+				});
+			}
+			function toggleTask(index){
+				tasks[index].completed=!tasks[index].completed;
+				saveTasks();
+				renderTasks();
+			}
+			function deleteTask(index){
+				tasks.splice(index,1);
+				saveTasks();
+				renderTasks();
+			}
+			function filterTasks(filter){
+				currentFilter=filter;
+				renderTasks();
+			}
+			function saveTasks(){
+				localStorage.setItem("tasks",JSON.stringify(tasks));
+			}	
+			function loadTasks(){
+				let data=localStorage.getItem("tasks");
+				if(data){
+					tasks=JSON.parse(data);
+				}
+			}
+		</script>
+	</body>
+</html>
